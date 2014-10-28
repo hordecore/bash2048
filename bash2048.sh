@@ -43,30 +43,32 @@ function _seq {
   local max
   local inc=1
   case $# in
-    1) let max=$1;;
-    2) let cur=$1
-       let max=$2;;
-    3) let cur=$1
-       let inc=$2
-       let max=$3;;
+    1) max=$1;;
+    2) cur=$1
+       max=$2;;
+    3) cur=$1
+       inc=$2
+       max=$3;;
   esac
-  while test $max -ge $cur; do
+  while [ $max -ge $cur ]; do
     printf "$cur "
     let cur+=inc
   done
 }
 
+function row() {
+  for l in $(_seq 1 $index_max); do
+    printf '+------'
+  done
+}
 # print currect status of the game, last added pieces are marked red
 function print_board {
   clear
   printf "$header pieces=$pieces target=$target score=$score\n"
   printf "Board status:\n" >&3
-  printf "\n"
-  printf '/------'
-  for l in $(_seq 1 $index_max); do
-    printf '+------'
-  done
-  printf '\\\n'
+  printf "\n/------"
+  row
+  echo '\'
   for l in $(_seq 0 $index_max); do
     printf '|'
     for m in $(_seq 0 $index_max); do
@@ -82,19 +84,15 @@ function print_board {
         printf '      |' >&3
       fi
     done
-    let l==$index_max || {
+    if [ $l != $index_max ]; then
       printf '\n|------'
-      for l in $(_seq 1 $index_max); do
-        printf '+------'
-      done
+      row
       printf '|\n'
       printf '\n' >&3
-    }
+    fi
   done
   printf '\n\\------'
-  for l in $(_seq 1 $index_max); do
-    printf '+------'
-  done
+  row
   printf '/\n'
 }
 
